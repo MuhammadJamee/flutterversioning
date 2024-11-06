@@ -1,0 +1,60 @@
+name: Version Bump & Release
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch name (e.g., 'main' or 'master')
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.0'  # Adjust as per your Flutter version
+
+      - name: Get the current version from pubspec.yaml
+        id: current_version
+        run: |
+          VERSION=$(grep 'version: ' pubspec.yaml | sed 's/version: //')
+          echo "Current version is $VERSION"
+          echo "::set-output name=current_version::$VERSION"
+
+      - name: Increment Build Number (Patch or Build)
+        id: increment_version
+        run: |
+          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
+          BASE_VERSION=$(echo $CURRENT_VERSION | cut -d+ -f1)
+          BUILD_NUMBER=$(echo $CURRENT_VERSION | cut -d+ -f2)
+          NEW_BUILD_NUMBER=$((BUILD_NUMBER + 1))
+          NEW_VERSION="$BASE_VERSION+$NEW_BUILD_NUMBER"
+          echo "New version is $NEW_VERSION"
+          echo "::set-output name=new_version::$NEW_VERSION"
+
+      - name: Update version in pubspec.yaml
+        run: |
+          NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
+          sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
+          git config --global user.email "jameeghouri@gmail.com"
+          git config --global user.name "GitHub Actions"
+          git add pubspec.yaml
+          git commit -m "Bump version to $NEW_VERSION"
+          git push
+
+      - name: Create a GitHub release
+        if: github.ref == 'refs/heads/main'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.increment_version.outputs.new_version }}
+          name: Release ${{ steps.increment_version.outputs.new_version }}
+          body: |
+            - New version: ${{ steps.increment_version.outputs.new_version }}
+            - Changelog entries (manually created or automatically generated).
