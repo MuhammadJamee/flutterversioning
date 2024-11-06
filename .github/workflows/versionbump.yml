@@ -3,10 +3,10 @@ name: Version Bump & Release
 on:
   push:
     branches:
-      - main  # Change to your default branch name (e.g., 'main' or 'master')
+      - hello  # Change to your default branch name (e.g., 'main' or 'master')
   pull_request:
     branches:
-      - main
+      - hello
 
 jobs:
   version-bump:
