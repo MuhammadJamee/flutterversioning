@@ -44,7 +44,7 @@ jobs:
           NEW_VERSION="${{ steps.increment_version.outputs.new_version }}"
           sed -i "s/^version: .*/version: $NEW_VERSION/" pubspec.yaml
           git config --global user.email "jameeghouri@gmail.com"
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "muhammadjamee"
           git add pubspec.yaml
           git commit -m "Bump version to $NEW_VERSION"
           git push
