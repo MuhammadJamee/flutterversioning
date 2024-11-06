@@ -47,7 +47,7 @@ jobs:
           git config --global user.name "muhammadjamee"
           git add pubspec.yaml
           git commit -m "Bump version to $NEW_VERSION"
-          git push origin main
+          git push origin hello
 
       - name: Create a GitHub release
         if: github.ref == 'refs/heads/main'
